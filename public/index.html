@@ -1,0 +1,36 @@
+<html>
+    <head>
+        <title>Chat AppApp™</title>
+    </head>
+
+
+    <body>
+        <h1>Chat AppApp™</h1>
+        <p>
+            <div>
+            <output name="" type="text" id="result" value="readonly"></output>
+            </div>
+        </p>
+
+        <input id="input field" type="text" onchange="ws.send(this.value); document.getElementById(id).value =''; " />
+
+        <script type="text/javascript">
+            const ws = new WebSocket("ws://localhost:3000/");
+            // Try to give people randomised names
+
+            ws.onmessage = async (event) => {
+                const message = await event.data.text()
+                console.log(message)
+
+                const mydiv = document.getElementById("result");
+                const newcontent = document.createElement('div');
+                newcontent.innerHTML = message + "<br />";
+
+                while (newcontent.firstChild) {
+                    mydiv.appendChild(newcontent.firstChild);
+                }
+
+            };
+        </script>
+    </body>
+</html>
