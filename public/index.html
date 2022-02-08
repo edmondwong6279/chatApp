@@ -3,7 +3,6 @@
         <title>Chat AppApp™</title>
     </head>
 
-
     <body>
         <h1>Chat AppApp™</h1>
         <p>
@@ -12,24 +11,39 @@
             </div>
         </p>
 
-        <input id="input field" type="text" onchange="ws.send(this.value); document.getElementById(id).value =''; " />
+        <span id=username></span><input id="input field" type="text"/>
 
         <script type="text/javascript">
+            const input = document.querySelector('input');
+            const log = document.getElementById('values');
+
+            input.addEventListener('change', (e) => {
+                // send stuff first
+                ws.send(`User ${username}: ${document.getElementById("input field").value}`);
+                // remove everthing in input
+                document.getElementById("input field").value =''; 
+            });
+
             const ws = new WebSocket("ws://localhost:3000/");
-            // Try to give people randomised names
+            let username;
 
             ws.onmessage = async (event) => {
-                const message = await event.data.text()
-                console.log(message)
+                try{
+                    // .text() only exist if it's a message, otherwise 
+                    const message = await event.data.text()
 
-                const mydiv = document.getElementById("result");
-                const newcontent = document.createElement('div');
-                newcontent.innerHTML = message + "<br />";
+                    const mydiv = document.getElementById("result");
+                    const newcontent = document.createElement('div');
+                    newcontent.innerHTML = message + "<br />";
 
-                while (newcontent.firstChild) {
-                    mydiv.appendChild(newcontent.firstChild);
+                    while (newcontent.firstChild) {
+                        mydiv.appendChild(newcontent.firstChild);
+                    }
+                } catch {
+                    // get username
+                    username = event.data;
+                    document.getElementById("username").innerHTML = "User " + username + ":";
                 }
-
             };
         </script>
     </body>
