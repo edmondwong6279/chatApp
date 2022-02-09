@@ -1,4 +1,6 @@
-<html>
+<!-- For some reason chrome ALWAYS thinks this page is french,
+        the below options don't seem to stop this... -->
+<html lang="en" translate="no">
     <head>
         <title>Chat AppApp™</title>
     </head>
@@ -6,7 +8,7 @@
     <body>
         <h1>Chat AppApp™</h1>
         <p>
-            <div>
+            <div style="overflow:auto; height:400px; display: flex; flex-direction: column-reverse;">
             <output name="" type="text" id="result" value="readonly"></output>
             </div>
         </p>
@@ -19,7 +21,9 @@
 
             input.addEventListener('change', (e) => {
                 // send stuff first
-                ws.send(`User ${username}: ${document.getElementById("input field").value}`);
+                ws.send(JSON.stringify([username, `${
+                    document.getElementById("input field").value
+                }`]));
                 // remove everthing in input
                 document.getElementById("input field").value =''; 
             });
@@ -28,21 +32,29 @@
             let username;
 
             ws.onmessage = async (event) => {
-                try{
-                    // .text() only exist if it's a message, otherwise 
-                    const message = await event.data.text()
+                data = JSON.parse(event.data)
+                if (data[0] === 0) {
+                    // get username
+                    username = data[1];
+                    document.getElementById("username").innerHTML = `User ${username}:`;
+                } else if (data[0] === 1) {
+                    const message = data[1][1];
+                    const user = data[1][0];
+                    const timestamp = new Date(data[2]);
 
                     const mydiv = document.getElementById("result");
                     const newcontent = document.createElement('div');
-                    newcontent.innerHTML = message + "<br />";
+                    // how can I make this look nice? JS prettier doesn't want to work in html
+                    newcontent.innerHTML = `User ${user} <span title="${
+                        timestamp.toDateString()
+                    }">(${
+                        timestamp.toTimeString().slice(0, 8)
+                    })</span>: ${message} <br />`;
 
+                    // Appends message to bottom of existing text
                     while (newcontent.firstChild) {
                         mydiv.appendChild(newcontent.firstChild);
                     }
-                } catch {
-                    // get username
-                    username = event.data;
-                    document.getElementById("username").innerHTML = "User " + username + ":";
                 }
             };
         </script>
